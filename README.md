@@ -2,6 +2,12 @@
 
 > Calculate project version from git tags and mark SNAPSHOT versions.
 
+This plugin has two tasks: 
+* `currentVersion` which calculate and prints projects current version object on the screen,
+* `metadata` which prints all metatadata with calculated projects current version.
+
+It is very useful when you need to calculate your project version in CI.
+
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
 
