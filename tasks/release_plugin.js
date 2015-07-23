@@ -12,6 +12,8 @@ var cp = require('child_process');
 
 module.exports = function (grunt) {
 
+    var done, options, target;
+
     function markSnapshotVersion(version, patch) {
         return version.slice(0, patch.index) + patch.value + "-SNAPSHOT";
     }
@@ -41,47 +43,58 @@ module.exports = function (grunt) {
         return tag.match(/[\d\.+]+/)[0];
     }
 
-    function compareWithTagCommit(tag, commit, repo, done) {
+    function compareWithTagCommit(tag, commit) {
         var compareCommand = 'git tag --contains ' + commit;
 
-        cp.exec(compareCommand, {cwd: repo}, function (err, tagContainedCommit) {
+        cp.exec(compareCommand, {cwd: options.repo}, function (err, tagContainedCommit) {
+            if (err) {
+                grunt.log.error('Checking if tag contains commit failed');
+            }
+
             var version = getVersionFromTag(tag),
             patch = getPatch(version),
             currentVersion = prepareCurrentVersion(version, tagContainedCommit.trim(), patch);
 
-            grunt.log.writeln(JSON.stringify(currentVersion));
+            if (target === 'currentVersion') {
+                grunt.log.writeln(JSON.stringify(currentVersion));
+            } else if (target === 'metadata') {
+                options.pkg.version = currentVersion.currentVersion;
+                grunt.log.writeln(JSON.stringify(options.pkg));
+            }
+
             done();
         });
     }
 
-    function checkLastCommit(tag, repo, done) {
+    function checkLastCommit(tag) {
         var lastCommitCommand = 'git rev-parse --short HEAD';
 
-        cp.exec(lastCommitCommand, {cwd: repo}, function (err, commit) {
-            compareWithTagCommit(tag, commit.trim(), repo, done);
-        });
-    }
+        cp.exec(lastCommitCommand, {cwd: options.repo}, function (err, commit) {
+            if (err) {
+                grunt.log.error('Cannot read last commit hash');
+            }
 
-    function getCurrentVersion(repo, done) {
-        var lastTagCommand = 'git describe --abbrev=0 --tags';
-
-        cp.exec(lastTagCommand, {cwd: repo}, function (err, lastTag) {
-            checkLastCommit(lastTag, repo, done);
+            compareWithTagCommit(tag, commit.trim());
         });
     }
 
     grunt.registerMultiTask('release_plugin', 'Calculate project version from git tags and mark SNAPSHOT versions.', function () {
-        var done = this.async(),
+        var lastTagCommand = 'git describe --abbrev=0 --tags';
+
+        done = this.async();
+        target = this.target;
         options = this.options({
             repo: '.',
             pkg: {}
         });
 
-        if (this.target === 'currentVersion') {
-            getCurrentVersion(options.repo, done);
-        } else if (this.target === 'metadata') {
+        cp.exec(lastTagCommand, {cwd: options.repo}, function (err, lastTag) {
+            if (err) {
+                grunt.log.error('Repository does not contain tags');
+            }
 
-        }
+            checkLastCommit(lastTag);
+        });
     });
 
 };

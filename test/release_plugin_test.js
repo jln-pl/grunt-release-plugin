@@ -34,6 +34,8 @@ exports.release_plugin = {
         });
     },
     currentVersionRelease: function (test) {
+        test.expect(1);
+
         callGrunt('gruntfile.js', 'currentVersion', function (error, stdout) {
             var expected = '{"currentVersion":"1.1.1"}',
             actual = getJsonFromOutput(stdout);
@@ -54,6 +56,34 @@ exports.release_plugin = {
                 actual = getJsonFromOutput(stdout);
 
                 test.equal(actual, expected, 'should return current snapshot project version');
+                test.done();
+            });
+        });
+    },
+
+    metadataRelease: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile.js', 'metadata', function (error, stdout) {
+            var expected = '{"version":"1.1.1","name":"some-name","domain":"some-domain"}',
+            actual = getJsonFromOutput(stdout);
+
+            test.equal(actual, expected, 'should return project metadata with release version');
+            test.done();
+        });
+    },
+
+    metadataSnapshot: function (test) {
+        var commitOneFileCommand = 'cd test/test-repo/; touch file.js; git add file.js; git commit -m "test"';
+
+        test.expect(1);
+
+        cp.exec(commitOneFileCommand, function () {
+            callGrunt('gruntfile.js', 'metadata', function (error, stdout) {
+                var expected = '{"version":"1.1.2-SNAPSHOT","name":"some-name","domain":"some-domain"}',
+                actual = getJsonFromOutput(stdout);
+
+                test.equal(actual, expected, 'should return project metadata with snapshot version');
                 test.done();
             });
         });

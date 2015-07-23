@@ -14,7 +14,7 @@ module.exports = function(grunt) {
     release_plugin: {
       options: {
         repo: './test-repo',
-        pkg: grunt.file.readJSON('../package.json')
+        pkg: { version: 'build with release plugin', name: 'some-name', domain: 'some-domain' }
       },
       currentVersion: {},
       metadata: {}
