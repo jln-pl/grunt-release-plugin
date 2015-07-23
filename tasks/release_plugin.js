@@ -23,7 +23,7 @@ module.exports = function (grunt) {
             currentVersion: version
         };
 
-        if (tagContainedCommit.trim().length == 0) {
+        if (tagContainedCommit.trim().length === 0) {
             currentVersion.currentVersion = markSnapshotVersion(version, patch);
         }
 

@@ -17,23 +17,32 @@ function getJsonFromOutput(output) {
     return output.substr(start, end);
 }
 
-exports.release_plugin = {
+function setUpTests(additionalCommand, done) {
+    var createRepoWithOneTagCommand = 'cd test; mkdir test-repo; cd test-repo; git init; ' +
+        'touch initial-file.js; git add initial-file.js; git commit -m "test"; ' +
+        'git tag -a test-1.1.1 -m "test-1.1.1"; ' + additionalCommand;
+
+    cp.exec(createRepoWithOneTagCommand, function () {
+        done();
+    });
+}
+
+function tearDownTests(callback) {
+    var removeCreatedRepoCommand = 'cd test; rm -rf test-repo';
+
+    cp.exec(removeCreatedRepoCommand, function () {
+        callback();
+    });
+}
+
+exports.release_plugin_release = {
     setUp: function (done) {
-        var createRepoWithOneTagCommand = 'cd test; mkdir test-repo; cd test-repo; git init; ' +
-            'touch initial-file.js; git add initial-file.js; git commit -m "test"; git tag -a test-1.1.1 -m "test-1.1.1"';
-
-        cp.exec(createRepoWithOneTagCommand, function () {
-            done();
-        });
+        setUpTests('', done);
     },
-    tearDown: function (callback) {
-        var removeCreatedRepoCommand = 'cd test; rm -rf test-repo';
 
-        cp.exec(removeCreatedRepoCommand, function () {
-            callback();
-        });
-    },
-    currentVersionRelease: function (test) {
+    tearDown: tearDownTests,
+
+    currentVersion: function (test) {
         test.expect(1);
 
         callGrunt('gruntfile.js', 'currentVersion', function (error, stdout) {
@@ -45,23 +54,7 @@ exports.release_plugin = {
         });
     },
 
-    currentVersionSnapshot: function (test) {
-        var commitOneFileCommand = 'cd test/test-repo/; touch file.js; git add file.js; git commit -m "test"';
-
-        test.expect(1);
-
-        cp.exec(commitOneFileCommand, function () {
-            callGrunt('gruntfile.js', 'currentVersion', function (error, stdout) {
-                var expected = '{"currentVersion":"1.1.2-SNAPSHOT"}',
-                actual = getJsonFromOutput(stdout);
-
-                test.equal(actual, expected, 'should return current snapshot project version');
-                test.done();
-            });
-        });
-    },
-
-    metadataRelease: function (test) {
+    metadata: function (test) {
         test.expect(1);
 
         callGrunt('gruntfile.js', 'metadata', function (error, stdout) {
@@ -71,21 +64,37 @@ exports.release_plugin = {
             test.equal(actual, expected, 'should return project metadata with release version');
             test.done();
         });
+    }
+};
+
+exports.release_plugin_snapshot = {
+    setUp: function (done) {
+        setUpTests('touch file.js; git add file.js; git commit -m "test"', done);
     },
 
-    metadataSnapshot: function (test) {
-        var commitOneFileCommand = 'cd test/test-repo/; touch file.js; git add file.js; git commit -m "test"';
+    tearDown: tearDownTests,
 
+    currentVersion: function (test) {
         test.expect(1);
 
-        cp.exec(commitOneFileCommand, function () {
-            callGrunt('gruntfile.js', 'metadata', function (error, stdout) {
-                var expected = '{"version":"1.1.2-SNAPSHOT","name":"some-name","domain":"some-domain"}',
-                actual = getJsonFromOutput(stdout);
+        callGrunt('gruntfile.js', 'currentVersion', function (error, stdout) {
+            var expected = '{"currentVersion":"1.1.2-SNAPSHOT"}',
+            actual = getJsonFromOutput(stdout);
 
-                test.equal(actual, expected, 'should return project metadata with snapshot version');
-                test.done();
-            });
+            test.equal(actual, expected, 'should return current snapshot project version');
+            test.done();
+        });
+    },
+
+    metadata: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile.js', 'metadata', function (error, stdout) {
+            var expected = '{"version":"1.1.2-SNAPSHOT","name":"some-name","domain":"some-domain"}',
+            actual = getJsonFromOutput(stdout);
+
+            test.equal(actual, expected, 'should return project metadata with snapshot version');
+            test.done();
         });
     }
 };
