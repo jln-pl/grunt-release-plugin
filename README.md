@@ -70,6 +70,25 @@ grunt.initConfig({
 });
 ```
 
+#### Shell example
+
+```shell
+git init
+touch file.js
+git add file.js
+git commit -m "add file.js"
+git tag -a v0.1.0 -m "v0.1.0"
+grunt release_plugin:currentVersion #will return {"currentVersion":"0.1.0"}
+
+touch file2.js
+git add file2.js
+git commit -m "add file2.js"
+grunt release_plugin:currentVersion #will return {"currentVersion":"0.1.1-SNAPSHOT"}
+
+git tag -a v0.1.1 -m "v0.1.1"
+grunt release_plugin:currentVersion #will return {"currentVersion":"0.1.1"}
+```
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
