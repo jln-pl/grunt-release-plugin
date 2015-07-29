@@ -18,7 +18,7 @@ function getJsonFromOutput(output) {
 }
 
 function setUpTests(additionalCommand, done) {
-    var createRepoWithOneTagCommand = 'cd test; mkdir test-repo; cd test-repo; git init; ' +
+    var createRepoWithOneTagCommand = 'cd test; npm install; mkdir test-repo; cd test-repo; git init; ' +
         'touch initial-file.js; git add initial-file.js; git commit -m "test"; ' +
         'git tag -a test-1.1.1 -m "test-1.1.1"; ' + additionalCommand;
 
@@ -28,7 +28,7 @@ function setUpTests(additionalCommand, done) {
 }
 
 function tearDownTests(callback) {
-    var removeCreatedRepoCommand = 'cd test; rm -rf test-repo';
+    var removeCreatedRepoCommand = 'cd test; rm -rf test-repo target node_modules;';
 
     cp.exec(removeCreatedRepoCommand, function () {
         callback();
@@ -64,6 +64,15 @@ exports.release_plugin_release = {
             test.equal(actual, expected, 'should return project metadata with release version');
             test.done();
         });
+    },
+
+    compress: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile.js', 'compress', function () {
+            test.ok(grunt.file.exists('test/target/universal/some-name-1.1.1.zip'), 'should make zip file with release version');
+            test.done();
+        });
     }
 };
 
@@ -94,6 +103,15 @@ exports.release_plugin_snapshot = {
             actual = getJsonFromOutput(stdout);
 
             test.equal(actual, expected, 'should return project metadata with snapshot version');
+            test.done();
+        });
+    },
+
+    compress: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile.js', 'compress', function () {
+            test.ok(grunt.file.exists('test/target/universal/some-name-1.1.2-SNAPSHOT.zip'), 'should make zip file with snapshot version');
             test.done();
         });
     }

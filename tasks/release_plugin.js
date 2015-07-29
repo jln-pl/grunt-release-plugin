@@ -12,7 +12,7 @@ var cp = require('child_process');
 
 module.exports = function (grunt) {
 
-    var done, options, target;
+    var done, options, target, data;
 
     function markSnapshotVersion(version, patch) {
         return version.slice(0, patch.index) + patch.value + "-SNAPSHOT";
@@ -60,6 +60,10 @@ module.exports = function (grunt) {
             } else if (target === 'metadata') {
                 options.pkg.version = currentVersion.currentVersion;
                 grunt.log.writeln(JSON.stringify(options.pkg));
+            } else if (target === 'compress') {
+                grunt.config.set('compress', data);
+                grunt.config.set('compress.main.options.archive', 'target/universal/'+ options.pkg.name + '-' + currentVersion.currentVersion + '.zip');
+                grunt.task.run(['compress']);
             }
 
             done();
@@ -78,11 +82,14 @@ module.exports = function (grunt) {
         });
     }
 
+    grunt.loadNpmTasks('grunt-contrib-compress');
+
     grunt.registerMultiTask('release_plugin', 'Calculate project version from git tags and mark SNAPSHOT versions.', function () {
         var lastTagCommand = 'git describe --abbrev=0 --tags';
 
         done = this.async();
         target = this.target;
+        data = this.data;
         options = this.options({
             repo: '.',
             pkg: {}

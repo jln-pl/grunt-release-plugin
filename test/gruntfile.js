@@ -8,18 +8,30 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-  grunt.initConfig({
-    release_plugin: {
-      options: {
-        repo: './test-repo',
-        pkg: { version: 'build with release plugin', name: 'some-name', domain: 'some-domain' }
-      },
-      currentVersion: {},
-      metadata: {}
-    }
-  });
+    grunt.initConfig({
+        pkg: {version: 'build with release plugin', name: 'some-name', domain: 'some-domain'},
+        release_plugin: {
+            options: {
+                repo: './test-repo',
+                pkg: '<%= pkg %>'
+            },
+            currentVersion: {},
+            metadata: {},
+            compress: {
+                main: {
+                    files: [
+                        {
+                            src: ['./dist/*'],
+                            dest: '<%= pkg.name %>/',
+                            filter: 'isFile'
+                        }
+                    ]
+                }
+            }
+        }
+    });
 
-  grunt.loadTasks('../tasks');
+    grunt.loadTasks('../tasks');
 };
