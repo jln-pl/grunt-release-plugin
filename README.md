@@ -93,5 +93,7 @@ grunt release_plugin:currentVersion #will return {"currentVersion":"0.1.1"}
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+* 2015-07-29   v1.1.2   Fix loading compress plugin
+* 2015-07-29   v1.1.1   Fix dependencies
 * 2015-07-29   v1.1.0   Add compress task
 * 2015-07-23   v0.1.0   First version of grunt-release-plugin

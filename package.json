@@ -1,7 +1,7 @@
 {
   "name": "grunt-release-plugin",
   "description": "Calculate project version from git tags and mark SNAPSHOT versions.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "homepage": "https://github.com/jln-pl/grunt-release-plugin",
   "author": {
     "name": "Jerzy Jelinek",

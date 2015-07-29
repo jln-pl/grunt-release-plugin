@@ -82,7 +82,9 @@ module.exports = function (grunt) {
         });
     }
 
-    grunt.loadNpmTasks('grunt-contrib-compress');
+    if(!grunt.loadTasks('node_modules/grunt-release-plugin/node_modules/grunt-contrib-compress/tasks')) {
+        grunt.loadNpmTasks('grunt-contrib-compress');
+    }
 
     grunt.registerMultiTask('release_plugin', 'Calculate project version from git tags and mark SNAPSHOT versions.', function () {
         var lastTagCommand = 'git describe --abbrev=0 --tags';
