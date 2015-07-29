@@ -1,0 +1,7 @@
+{
+  "name": "grunt-release-plugin-test",
+  "version": "0.1.0",
+  "dependencies": {
+    "grunt-contrib-compress": "^0.13.0"
+  }
+}
