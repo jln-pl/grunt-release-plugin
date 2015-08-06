@@ -5,6 +5,7 @@
 This plugin has two tasks: 
 * `currentVersion` which calculates and prints projects current version object on the screen,
 * `metadata` which prints all metatadata with calculated projects current version.
+* `compress` which is a [grunt-contrib-compress](https://github.com/gruntjs/grunt-contrib-compress) task. The path for created package is always the same - `target/universal/projectName-calculatedCurrentVersion.zip`
 
 It is very useful when you need to calculate your project version in CI.
 
@@ -35,7 +36,8 @@ grunt.initConfig({
       // Task-specific options go here.
     },
     currentVersion: {},
-    metadata: {}
+    metadata: {},
+    compress: {...}
   }
 });
 ```
@@ -65,7 +67,18 @@ grunt.initConfig({
       pkg: grunt.file.readJSON('package.json')
     },
     currentVersion: {},
-    metadata: {}
+    metadata: {},
+    compress: {
+      main: {
+        files: [
+          {
+            src: ['./dist/*'],
+            dest: '<%= pkg.name %>/',
+            filter: 'isFile'
+          }
+        ]
+      }
+    }
   }
 });
 ```
