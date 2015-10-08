@@ -99,7 +99,8 @@ module.exports = function (grunt) {
 
         cp.exec(lastTagCommand, {cwd: options.repo}, function (err, lastTag) {
             if (err) {
-                grunt.log.error('Repository does not contain tags');
+                grunt.log.error('Repository does not contain tags, defaulting to version 0.0.0');
+                checkLastCommit('0.0.0')
             }
 
             checkLastCommit(lastTag);
