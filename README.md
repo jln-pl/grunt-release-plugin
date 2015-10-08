@@ -56,6 +56,12 @@ Default value: `{}`
 
 An object with version (which will be replaced) any any other stuff returned by metadata task, usually `package.json`
 
+#### options.useDistance
+Type: `Boolean`
+Default value: `false`
+
+A snapshot version will include the count of commits from the last tag in it.
+
 ### Usage Examples
 
 #### Default Options
@@ -64,7 +70,8 @@ grunt.initConfig({
   release_plugin: {
     options: {
       repo: ".",
-      pkg: grunt.file.readJSON('package.json')
+      pkg: grunt.file.readJSON('package.json'),
+      useDistance: false
     },
     currentVersion: {},
     metadata: {},

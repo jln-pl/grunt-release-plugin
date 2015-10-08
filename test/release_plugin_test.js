@@ -116,3 +116,85 @@ exports.release_plugin_snapshot = {
         });
     }
 };
+
+exports.release_plugin_release_distance = {
+    setUp: function (done) {
+        setUpTests('', done);
+    },
+
+    tearDown: tearDownTests,
+
+    currentVersion: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile-distance.js', 'currentVersion', function (error, stdout) {
+            var expected = '{"currentVersion":"1.1.1"}',
+            actual = getJsonFromOutput(stdout);
+
+            test.equal(actual, expected, 'should return current release project version');
+            test.done();
+        });
+    },
+
+    metadata: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile-distance.js', 'metadata', function (error, stdout) {
+            var expected = '{"version":"1.1.1","name":"some-name","domain":"some-domain"}',
+            actual = getJsonFromOutput(stdout);
+
+            test.equal(actual, expected, 'should return project metadata with release version');
+            test.done();
+        });
+    },
+
+    compress: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile-distance.js', 'compress', function () {
+            test.ok(grunt.file.exists('test/target/universal/some-name-1.1.1.zip'), 'should make zip file with release version');
+            test.done();
+        });
+    }
+};
+
+exports.release_plugin_snapshot_distance = {
+    setUp: function (done) {
+        setUpTests('touch file.js; git add file.js; git commit -m "test"', done);
+    },
+
+    tearDown: tearDownTests,
+
+    currentVersion: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile-distance.js', 'currentVersion', function (error, stdout) {
+            var expected = '{"currentVersion":"1.1.2-SNAPSHOT1"}',
+            actual = getJsonFromOutput(stdout);
+
+            test.equal(actual, expected, 'should return current snapshot project version');
+            test.done();
+        });
+    },
+
+    metadata: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile-distance.js', 'metadata', function (error, stdout) {
+            var expected = '{"version":"1.1.2-SNAPSHOT1","name":"some-name","domain":"some-domain"}',
+            actual = getJsonFromOutput(stdout);
+
+            test.equal(actual, expected, 'should return project metadata with snapshot version');
+            test.done();
+        });
+    },
+
+    compress: function (test) {
+        test.expect(1);
+
+        callGrunt('gruntfile-distance.js', 'compress', function () {
+            test.ok(grunt.file.exists('test/target/universal/some-name-1.1.2-SNAPSHOT1.zip'), 'should make zip file with snapshot version');
+            test.done();
+        });
+    }
+};

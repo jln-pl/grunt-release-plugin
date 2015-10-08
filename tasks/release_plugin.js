@@ -14,20 +14,38 @@ module.exports = function (grunt) {
 
     var done, options, target, data;
 
-    function markSnapshotVersion(version, patch) {
-        return version.slice(0, patch.index) + patch.value + "-SNAPSHOT";
+    function markSnapshotVersion(version, patch, distance) {
+        var suffix = "-SNAPSHOT";
+
+        if (options.useDistance) {
+            suffix = suffix + distance.trim();
+        }
+
+        return version.slice(0, patch.index) + patch.value + suffix;
     }
 
-    function prepareCurrentVersion(version, tagContainedCommit, patch) {
+    function prepareCurrentVersion(version, tagContainedCommit, patch, distance) {
         var currentVersion = {
             currentVersion: version
         };
 
         if (tagContainedCommit.trim().length === 0) {
-            currentVersion.currentVersion = markSnapshotVersion(version, patch);
+            currentVersion.currentVersion = markSnapshotVersion(version, patch, distance);
         }
 
         return currentVersion;
+    }
+
+    function getCommitDistanceFromTag(tag, commit) {
+        var distanceCommand = 'git rev-list ' + tag.trim() + '...' + commit.trim() + ' --count';
+
+        cp.exec(distanceCommand, {cwd: options.repo}, function (err, distance) {
+            if (err) {
+                grunt.log.error('Could not find commit distance from tag');
+            }
+
+            compareWithTagCommit(tag, commit.trim(), distance.trim());
+        });
     }
 
     function getPatch(version) {
@@ -43,7 +61,7 @@ module.exports = function (grunt) {
         return tag.match(/[\d\.+]+/)[0];
     }
 
-    function compareWithTagCommit(tag, commit) {
+    function compareWithTagCommit(tag, commit, distance) {
         var compareCommand = 'git tag --contains ' + commit;
 
         cp.exec(compareCommand, {cwd: options.repo}, function (err, tagContainedCommit) {
@@ -53,7 +71,7 @@ module.exports = function (grunt) {
 
             var version = getVersionFromTag(tag),
             patch = getPatch(version),
-            currentVersion = prepareCurrentVersion(version, tagContainedCommit.trim(), patch);
+            currentVersion = prepareCurrentVersion(version, tagContainedCommit.trim(), patch, distance);
 
             if (target === 'currentVersion') {
                 grunt.log.writeln(JSON.stringify(currentVersion));
@@ -78,7 +96,7 @@ module.exports = function (grunt) {
                 grunt.log.error('Cannot read last commit hash');
             }
 
-            compareWithTagCommit(tag, commit.trim());
+            getCommitDistanceFromTag(tag, commit.trim());
         });
     }
 
@@ -94,7 +112,8 @@ module.exports = function (grunt) {
         data = this.data;
         options = this.options({
             repo: '.',
-            pkg: {}
+            pkg: {},
+            useDistance: false
         });
 
         cp.exec(lastTagCommand, {cwd: options.repo}, function (err, lastTag) {
