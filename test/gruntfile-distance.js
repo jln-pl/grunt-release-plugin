@@ -16,7 +16,7 @@ module.exports = function (grunt) {
             options: {
                 repo: './test-repo',
                 pkg: '<%= pkg %>',
-                useDistance: false
+                useDistance: true
             },
             currentVersion: {},
             metadata: {},
