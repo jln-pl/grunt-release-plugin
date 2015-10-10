@@ -77,7 +77,7 @@ exports.release_plugin_release = {
 
 exports.release_plugin_snapshot = {
     setUp: function (done) {
-        setUpTests('git tag -a test-1.1.1 -m "test-1.1.1"; ' + 'touch file.js; git add file.js; git commit -m "test"', done);
+        setUpTests('git tag -a test-1.1.1 -m "test-1.1.1"; touch file.js; git add file.js; git commit -m "test"', done);
     },
 
     tearDown: tearDownTests,
@@ -130,7 +130,7 @@ exports.release_plugin_snapshot_no_tag = {
             var expected = '{"currentVersion":"0.0.1-SNAPSHOT"}',
             actual = getJsonFromOutput(stdout);
 
-            test.equal(actual, expected, 'should return current snapshot project version');
+            test.equal(actual, expected, 'should return "0.0.1-SNAPSHOT" project version');
             test.done();
         });
     },
@@ -142,7 +142,7 @@ exports.release_plugin_snapshot_no_tag = {
             var expected = '{"version":"0.0.1-SNAPSHOT","name":"some-name","domain":"some-domain"}',
             actual = getJsonFromOutput(stdout);
 
-            test.equal(actual, expected, 'should return project metadata with snapshot version');
+            test.equal(actual, expected, 'should return project metadata with "0.0.1-SNAPSHOT" version');
             test.done();
         });
     },
@@ -151,7 +151,7 @@ exports.release_plugin_snapshot_no_tag = {
         test.expect(1);
 
         callGrunt('gruntfile.js', 'compress', function () {
-            test.ok(grunt.file.exists('test/target/universal/some-name-0.0.1-SNAPSHOT.zip'), 'should make zip file with snapshot version');
+            test.ok(grunt.file.exists('test/target/universal/some-name-0.0.1-SNAPSHOT.zip'), 'should make zip file with "0.0.1-SNAPSHOT" version');
             test.done();
         });
     }
