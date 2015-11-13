@@ -77,7 +77,7 @@ exports.release_plugin_release = {
 
 exports.release_plugin_snapshot = {
     setUp: function (done) {
-        setUpTests('git tag -a test-1.1.1 -m "test-1.1.1"; touch file.js; git add file.js; git commit -m "test"', done);
+        setUpTests('git tag -a test-1.1.1 -m "test-1.1.1"; git checkout -b feature/newBranch; touch file.js; git add file.js; git commit -m "test"', done);
     },
 
     tearDown: tearDownTests,
@@ -86,7 +86,7 @@ exports.release_plugin_snapshot = {
         test.expect(1);
 
         callGrunt('gruntfile.js', 'currentVersion', function (error, stdout) {
-            var expected = '{"currentVersion":"1.1.2-SNAPSHOT"}',
+            var expected = '{"currentVersion":"1.1.2-feature-newBranch-SNAPSHOT"}',
             actual = getJsonFromOutput(stdout);
 
             test.equal(actual, expected, 'should return current snapshot project version');
@@ -98,7 +98,7 @@ exports.release_plugin_snapshot = {
         test.expect(1);
 
         callGrunt('gruntfile.js', 'metadata', function (error, stdout) {
-            var expected = '{"version":"1.1.2-SNAPSHOT","name":"some-name","domain":"some-domain"}',
+            var expected = '{"version":"1.1.2-feature-newBranch-SNAPSHOT","name":"some-name","domain":"some-domain"}',
             actual = getJsonFromOutput(stdout);
 
             test.equal(actual, expected, 'should return project metadata with snapshot version');
@@ -110,7 +110,7 @@ exports.release_plugin_snapshot = {
         test.expect(1);
 
         callGrunt('gruntfile.js', 'compress', function () {
-            test.ok(grunt.file.exists('test/target/universal/some-name-1.1.2-SNAPSHOT.zip'), 'should make zip file with snapshot version');
+            test.ok(grunt.file.exists('test/target/universal/some-name-1.1.2-feature-newBranch-SNAPSHOT.zip'), 'should make zip file with snapshot version');
             test.done();
         });
     }

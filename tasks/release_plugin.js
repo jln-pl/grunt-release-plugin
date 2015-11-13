@@ -14,8 +14,41 @@ module.exports = function (grunt) {
 
     var done, options, target, data;
 
-    function markSnapshotVersion(version, patch) {
-        return version.slice(0, patch.index) + patch.value + "-SNAPSHOT";
+    function operateTargets(currentVersion) {
+        if (target === 'currentVersion') {
+            grunt.log.writeln(JSON.stringify(currentVersion));
+        } else if (target === 'metadata') {
+            options.pkg.version = currentVersion.currentVersion;
+            grunt.log.writeln(JSON.stringify(options.pkg));
+        } else if (target === 'compress') {
+            grunt.config.set('compress', data);
+            grunt.config.set('compress.main.options.archive', 'target/universal/'+ options.pkg.name + '-' + currentVersion.currentVersion + '.zip');
+            grunt.task.run(['compress']);
+        }
+
+        done();
+    }
+
+    function generateSnapshotVersion(version, patch) {
+        var getBranchName = 'git rev-parse --abbrev-ref HEAD';
+
+        cp.exec(getBranchName, {cwd: options.repo}, function (err, branchName) {
+            if (err) {
+                grunt.log.error('Checking if tag contains commit failed');
+            }
+
+            var currentVersion = {
+                currentVersion: version.slice(0, patch.index) + patch.value + "-SNAPSHOT"
+            };
+
+            var branchNameTrimmed = branchName.trim().replace('/', '-');
+
+            if (branchNameTrimmed !== 'master') {
+                currentVersion.currentVersion =version.slice(0, patch.index) + patch.value + "-" + branchNameTrimmed  + "-SNAPSHOT";
+            }
+
+            operateTargets(currentVersion);
+        });
     }
 
     function prepareCurrentVersion(version, tagContainedCommit, patch) {
@@ -24,10 +57,10 @@ module.exports = function (grunt) {
         };
 
         if (tagContainedCommit.trim().length === 0) {
-            currentVersion.currentVersion = markSnapshotVersion(version, patch);
+            generateSnapshotVersion(version, patch);
+        } else {
+            operateTargets(currentVersion);
         }
-
-        return currentVersion;
     }
 
     function getPatch(version) {
@@ -52,21 +85,9 @@ module.exports = function (grunt) {
             }
 
             var version = getVersionFromTag(tag),
-            patch = getPatch(version),
-            currentVersion = prepareCurrentVersion(version, tagContainedCommit.trim(), patch);
+            patch = getPatch(version);
 
-            if (target === 'currentVersion') {
-                grunt.log.writeln(JSON.stringify(currentVersion));
-            } else if (target === 'metadata') {
-                options.pkg.version = currentVersion.currentVersion;
-                grunt.log.writeln(JSON.stringify(options.pkg));
-            } else if (target === 'compress') {
-                grunt.config.set('compress', data);
-                grunt.config.set('compress.main.options.archive', 'target/universal/'+ options.pkg.name + '-' + currentVersion.currentVersion + '.zip');
-                grunt.task.run(['compress']);
-            }
-
-            done();
+            prepareCurrentVersion(version, tagContainedCommit.trim(), patch);
         });
     }
 
@@ -106,5 +127,4 @@ module.exports = function (grunt) {
             }
         });
     });
-
 };
