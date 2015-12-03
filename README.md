@@ -61,10 +61,10 @@ An object with version (which will be replaced) any any other stuff returned by 
 #### Default Options
 ```js
 grunt.initConfig({
+  pkg: grunt.file.readJSON('package.json'),
   release_plugin: {
     options: {
-      repo: ".",
-      pkg: grunt.file.readJSON('package.json')
+      repo: "."
     },
     currentVersion: {},
     metadata: {},
